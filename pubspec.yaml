@@ -1,0 +1,77 @@
+name: quran_app_android
+description: "A new Flutter project."
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  get: ^4.6.5
+  staggered_grid_view_flutter: ^0.0.4
+  flutter_custom_clippers: ^2.1.0
+  shared_preferences: ^2.1.2
+  share_plus: ^10.1.4
+  dio: ^5.2.1+1
+#  audioplayers: ^4.1.0
+  audio_video_progress_bar: ^1.0.1
+  connectivity_plus: ^4.0.1
+  readmore: ^2.2.0
+  fluttertoast: ^8.2.12
+  step_progress_indicator: ^1.0.2
+  geolocator: ^13.0.1
+  permission_handler: ^11.4.0
+  intl: ^0.18.1
+  flutter_local_notifications: ^17.0.2
+  timezone: ^0.9.0
+
+  # workmanager: ^0.5.1
+  # sqflite: ^2.3.0
+  # flutter_qiblah: ^3.1.0+1
+  lottie: ^2.6.0
+  smooth_page_indicator: ^1.1.0
+  adhan: ^2.0.0+1
+  hijri: ^3.0.0
+  win32: ^5.5.4
+  location: ^6.0.2
+  adhan_dart: ^1.1.2
+  flutter_compass: ^0.8.1
+  widgetkit: ^1.0.2
+  flutter_widgetkit: ^1.0.3
+  home_widget: ^0.7.0+1
+  flutter_native_timezone_latest: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+flutter:
+  uses-material-design: true
+
+
+  assets:
+    - assets/images/
+    - assets/images/json/
+    - assets/name_quran.json
+    - assets/quran_en.json
+    - assets/ar_muyassar.json
+    - assets/azkar.json
+    - assets/Names_Of_Allah.json
+    - assets/sections/hadith.json
+  fonts:
+      - family: IconBroken
+        fonts:
+          - asset: assets/fonts/icons.ttf
+      - family: Kitab
+        fonts:
+          - asset: assets/fonts/kitab.ttf
+      - family: Quran
+        fonts:
+          - asset: assets/fonts/Al-QuranAlKareem.ttf
+      - family: Rubik
+        fonts:
+          - asset: assets/fonts/BalooBhaijaan2-VariableFont_wght.ttf
+      - family: uthman
+        fonts:
+          - asset: assets/fonts/UthmanicHafs1.otf

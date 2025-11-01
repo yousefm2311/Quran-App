@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:background="@drawable/bg_gradient">
+
+    <!-- 🕌 صورة المسجد -->
+    <ImageView android:id="@+id/mosqueImage" android:layout_width="200dp" android:layout_height="200dp" android:src="@drawable/ic_mosque" android:layout_centerHorizontal="true" android:layout_marginTop="100dp" android:contentDescription="Mosque Icon" android:alpha="0.9" android:scaleType="centerInside" />
+
+    <!-- 🕌 نص الصلاة المتحرك -->
+    <TextView android:id="@+id/prayerTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🕌 حان الآن وقت الصلاة" android:textColor="@android:color/white" android:textSize="28sp" android:textStyle="bold" android:layout_below="@id/mosqueImage" android:layout_centerHorizontal="true" android:layout_marginTop="40dp" android:shadowColor="#80000000" android:shadowRadius="6" android:animation="@anim/fade_in"/>
+
+    <!-- 🔴 زر إيقاف الأذان -->
+    <Button android:id="@+id/stopButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="إيقاف الأذان" android:textAllCaps="false" android:textSize="18sp" android:textColor="@android:color/white" android:backgroundTint="@android:color/holo_red_light" android:layout_below="@id/prayerTitle" android:layout_centerHorizontal="true" android:layout_marginTop="60dp" android:paddingHorizontal="40dp" android:paddingVertical="16dp" android:elevation="6dp" android:translationZ="8dp" />
+</RelativeLayout>
