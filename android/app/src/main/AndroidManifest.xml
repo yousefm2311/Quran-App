@@ -32,21 +32,23 @@
 
 
         <!-- 🎵 الخدمة المسؤولة عن تشغيل صوت الأذان -->
-        <service android:name=".adhan.AdhanService" android:exported="false" android:foregroundServiceType="mediaPlayback" />
+        <service android:name=".adhan.AdhanService" android:exported="false" android:foregroundServiceType="mediaPlayback|location|connectedDevice" />
 
         <!-- ⏰ الريسيفر اللي بيشغل الأذان عند وقت الصلاة -->
-        <receiver android:name=".adhan.AlarmReceiver" android:enabled="true" android:exported="false" />
+        <receiver android:name=".adhan.AlarmReceiver" android:enabled="true" android:exported="true" />
 
         <!-- 🔁 لإعادة جدولة الأذان بعد إعادة التشغيل أو تغيير الوقت -->
-        <receiver android:name=".adhan.BootReceiver" android:enabled="true" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.TIME_CHANGED" />
-                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-            </intent-filter>
-        </receiver>
+<receiver android:name=".adhan.BootReceiver" android:enabled="true" android:exported="true">
+    <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+        <action android:name="android.intent.action.TIME_CHANGED" />
+        <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+        <action android:name="android.intent.action.TIME_SET" />
+    </intent-filter>
+</receiver>
+
 
         <!-- 🏠 الويدجت -->
         <receiver android:name=".MyHomeWidget" android:exported="true">

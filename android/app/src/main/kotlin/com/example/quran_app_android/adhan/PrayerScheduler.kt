@@ -105,6 +105,7 @@
 
 
 package com.example.quran_app_android.adhan
+
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -123,28 +124,29 @@ object PrayerScheduler {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // إلغاء أي منبهات قديمة
+        // 🧹 إلغاء أي منبهات قديمة لتجنب التكرار
         prayerTimes.keys.forEach { name ->
             val cancelIntent = Intent(context, AlarmReceiver::class.java)
-            val pending = PendingIntent.getBroadcast(
+            val cancelPending = PendingIntent.getBroadcast(
                 context,
                 name.hashCode(),
                 cancelIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            alarmManager.cancel(pending)
+            alarmManager.cancel(cancelPending)
         }
 
-        // إنشاء منبه لكل صلاة
+        // 🕌 جدولة كل صلاة بدقة
         prayerTimes.forEach { (name, millis) ->
             if (millis <= System.currentTimeMillis()) {
-                Log.i("PrayerScheduler", "⏭ تم تجاوز $name لأنه في الماضي")
+                Log.i("PrayerScheduler", "⏭ تخطينا $name لأنها في الماضي (${millis})")
                 return@forEach
             }
 
             val intent = Intent(context, AlarmReceiver::class.java).apply {
                 putExtra("prayer_name", name)
             }
+
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 name.hashCode(),
@@ -152,14 +154,22 @@ object PrayerScheduler {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                millis,
-                pendingIntent
-            )
-            Log.i("PrayerScheduler", "✅ تم جدولة $name عند $millis")
+            try {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    millis,
+                    pendingIntent
+                )
+                Log.i("PrayerScheduler", "✅ تم جدولة $name عند ${millis}")
+            } catch (e: Exception) {
+                Log.e("PrayerScheduler", "❌ فشل في جدولة $name: ${e.message}")
+            }
         }
 
-        Toast.makeText(context, "✅ تم جدولة ${prayerTimes.size} صلاة", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context,
+            "✅ تم جدولة ${prayerTimes.size} صلاة بنجاح",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

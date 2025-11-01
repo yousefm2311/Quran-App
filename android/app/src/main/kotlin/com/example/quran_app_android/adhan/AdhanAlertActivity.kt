@@ -61,10 +61,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
-import android.util.Log
 import com.example.quran_app_android.R
 
 class AdhanAlertActivity : android.app.Activity() {
@@ -82,9 +82,9 @@ class AdhanAlertActivity : android.app.Activity() {
                 @Suppress("DEPRECATION")
                 window.addFlags(
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                            WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
                 )
             }
 
@@ -104,31 +104,33 @@ class AdhanAlertActivity : android.app.Activity() {
             finish()
         }
 
-        // ⏰ اغلاق تلقائي بعد مدة الصوت (3 دقائق)
+        // ⏰ إغلاق تلقائي بعد مدة الصوت (3 دقائق)
         Handler(Looper.getMainLooper()).postDelayed({
             stopAdhanAndNotification()
             if (!isFinishing) finish()
         }, autoCloseDelay)
     }
 
-private fun stopAdhanAndNotification() {
-    try {
-        // 🔹 نبعث أمر STOP_ADHAN للخدمة
-val stopIntent = Intent(this, AdhanService::class.java).apply {
-    action = "STOP_ADHAN"
-}
-startService(stopIntent)
+    private fun stopAdhanAndNotification() {
+        try {
+            // 🔹 نبعث أمر STOP_ADHAN للخدمة بطريقة آمنة حسب النظام
+            val stopIntent = Intent(this, AdhanService::class.java).apply {
+                action = "STOP_ADHAN"
+            }
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(stopIntent)
+            } else {
+                startService(stopIntent)
+            }
 
-        // 🔕 نوقف الإشعار
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.cancel(1)
+            // 🔕 نوقف الإشعار
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.cancel(1)
 
-        Log.i("AdhanAlert", "🛑 تم إيقاف الأذان والإشعار بنجاح.")
-    } catch (e: Exception) {
-        Log.e("AdhanAlert", "⚠️ فشل في إيقاف الأذان أو الإشعار: ${e.message}")
+            Log.i("AdhanAlert", "🛑 تم إيقاف الأذان والإشعار بنجاح.")
+        } catch (e: Exception) {
+            Log.e("AdhanAlert", "⚠️ فشل في إيقاف الأذان أو الإشعار: ${e.message}")
+        }
     }
 }
-
-}
-

@@ -228,6 +228,8 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -250,26 +252,21 @@ class AdhanService : Service() {
         val prayerName = intent?.getStringExtra("prayer_name") ?: "الصلاة"
 
         when (action) {
-
-            // 🕌 تشغيل الأذان فعلاً
             "START_ADHAN" -> {
                 if (isPlaying) {
                     Log.w("AdhanService", "⚠️ الأذان شغال بالفعل، تجاهل التشغيل المكرر.")
                     return START_NOT_STICKY
                 }
-
                 startAdhan(prayerName)
             }
 
-            // 🛑 أمر إيقاف
             "STOP_ADHAN" -> {
                 Log.i("AdhanService", "🛑 تم استقبال أمر إيقاف الأذان من Activity")
                 stopAdhan()
             }
 
-            // 🧭 Intent آخر (زي لما المستخدم يفتح الشاشة يدويًا)
             else -> {
-                Log.d("AdhanService", "ℹ️ تم تجاهل Intent بدون Action (فتح الشاشة فقط).")
+                Log.d("AdhanService", "ℹ️ تم تجاهل Intent بدون Action.")
             }
         }
 
@@ -277,12 +274,12 @@ class AdhanService : Service() {
     }
 
     private fun startAdhan(prayerName: String) {
-        // 🔹 Intent لفتح شاشة الأذان فوق التطبيقات والقفل
         val alertIntent = Intent(this, AdhanAlertActivity::class.java).apply {
             addFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
             )
             putExtra("prayer_name", prayerName)
         }
@@ -308,28 +305,17 @@ class AdhanService : Service() {
 
         startForeground(1, notification)
 
-        // ✅ فتح الشاشة فوق القفل
-        // ✅ فتح الشاشة فوق التطبيقات أو القفل
-try {
-    val alertIntent = Intent(this, AdhanAlertActivity::class.java).apply {
-        addFlags(
-            Intent.FLAG_ACTIVITY_NEW_TASK or
-            Intent.FLAG_ACTIVITY_CLEAR_TOP or
-            Intent.FLAG_ACTIVITY_SINGLE_TOP or
-            Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or
-            Intent.FLAG_ACTIVITY_NO_USER_ACTION
-        )
-        putExtra("prayer_name", prayerName)
-    }
+        // ✅ فتح شاشة الأذان بعد ثانية علشان الأجهزة الضعيفة تلحق تهيأ الواجهة
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                startActivity(alertIntent)
+                Log.i("AdhanService", "🕌 تم فتح شاشة الأذان فوق التطبيقات")
+            } catch (e: Exception) {
+                Log.e("AdhanService", "❌ فشل فتح شاشة الأذان: ${e.message}")
+            }
+        }, 1000)
 
-    startActivity(alertIntent)
-    Log.i("AdhanService", "🕌 تم فتح شاشة الأذان فوق التطبيقات")
-} catch (e: Exception) {
-    Log.e("AdhanService", "❌ فشل فتح شاشة الأذان: ${e.message}")
-}
-
-
-        // 🎵 تشغيل الصوت
+        // 🎵 تشغيل صوت الأذان
         try {
             val afd = resources.openRawResourceFd(R.raw.adhan)
             player = MediaPlayer().apply {

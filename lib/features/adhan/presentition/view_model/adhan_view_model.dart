@@ -57,7 +57,7 @@ class AdhanViewModel extends GetxController {
       longitude = position.longitude;
       isLoading.value = false;
       adhan();
-      
+      saveLocation(latitude!, longitude!);
       update();
     } catch (e) {
       isLoading.value = false;
@@ -89,12 +89,24 @@ PrayerTimes? prayerTimes;
       };
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('last_prayer_times', jsonEncode(timesMap));
-
-
       // نرسلها إلى كوتلن
-      await NativeAdhanBridge.schedulePrayerTimes(timesMap);
+      try {
+        await NativeAdhanBridge.schedulePrayerTimes(timesMap);
+        debugPrint('✅ Prayer times scheduled successfully');
+      } catch (e) {
+        debugPrint('⚠️ Failed to schedule in Kotlin: $e');
+      }
+
 
       // نحتفظ بالنوتيفيكيشن القديمة (اختياري)
     }
+  }
+
+  Future<void> saveLocation(double lat, double lng) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('lat', lat);
+    await prefs.setDouble('lng', lng);
+    await NativeAdhanBridge.saveLocationToNative(lat, lng);
+    print('✅ Location saved for Adhan service: $lat, $lng');
   }
 }
