@@ -10,20 +10,29 @@ class PngTreeViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      child: GetBuilder<PngTreeViewModel>(builder: (control) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SectionTotalText(controller: control),
-            CircularStepProgressIndicatorView(controller: control),
-            PngTreeButtons(controller: control),
-            const SizedBox(height: 40),
-          ],
-        );
-      }),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xffE9F2FA), Color(0xffFDFEFE)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: GetBuilder<PngTreeViewModel>(
+        builder: (control) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SectionTotalText(controller: control),
+              CircularStepProgressIndicatorView(controller: control),
+              PngTreeButtons(controller: control),
+              const SizedBox(height: 40),
+            ],
+          );
+        },
+      ),
     );
   }
 }

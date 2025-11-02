@@ -108,16 +108,13 @@
 //   }
 // }
 
-
-
-// ignore_for_file: prefer_typing_uninitialized_variables
-
 // ignore_for_file: prefer_typing_uninitialized_variables
 
 import 'dart:async';
 import 'dart:convert';
 import 'package:adhan/adhan.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -138,9 +135,12 @@ class AdhanViewModel extends GetxController {
   bool isDefaultLocation = false; // ✅ نعرف إذا كنا بنستخدم موقع افتراضي
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    initializeAdhan();
+    try {} catch (e) {
+      debugPrint('💥 initializeAdhan failed: $e');
+      await useCairoFallback();
+    }
   }
 
   /// 🔹 تهيئة النظام بالكامل
@@ -180,79 +180,85 @@ class AdhanViewModel extends GetxController {
   }
 
   /// 🔹 محاولة تحديد الموقع الحقيقي
- Future<void> getCurrentLocation() async {
-  debugPrint('📡 Starting location request...');
-  isDefaultLocation = false;
-
-  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    debugPrint('❌ Location service is disabled on the device.');
-    await useCairoFallback();
-    return;
-  }
-
-  LocationPermission permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      debugPrint('🚫 Location permission denied by user.');
+  Future<void> getCurrentLocation() async {
+    debugPrint('📡 Starting location request...');
+    isDefaultLocation = false;
+    Get.snackbar(
+      "جارٍ تحديد الموقع...",
+      "برجاء الانتظار لحساب مواقيت الصلاة 🕌",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.blueAccent.withOpacity(0.9),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 4),
+    );
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      debugPrint('❌ Location service is disabled on the device.');
       await useCairoFallback();
       return;
     }
-  }
 
-  if (permission == LocationPermission.deniedForever) {
-    debugPrint('⛔ Permission permanently denied.');
-    await useCairoFallback();
-    return;
-  }
-
-  try {
-    // نحاول أول مرة بوقت انتظار أطول شوية
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: const Duration(seconds: 15),
-    );
-
-    latitude = position.latitude;
-    longitude = position.longitude;
-    isDefaultLocation = false;
-    debugPrint('✅ Got new location: $latitude, $longitude');
-  } catch (e) {
-    debugPrint('⚠️ Failed to get location: $e');
-    debugPrint('🔁 Trying last known position...');
-
-    try {
-      Position? lastPos = await Geolocator.getLastKnownPosition();
-      if (lastPos != null) {
-        latitude = lastPos.latitude;
-        longitude = lastPos.longitude;
-        isDefaultLocation = false;
-        debugPrint('✅ Using last known position: $latitude, $longitude');
-      } else {
-        debugPrint('❌ No last known position found, fallback to Cairo');
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        debugPrint('🚫 Location permission denied by user.');
         await useCairoFallback();
         return;
       }
-    } catch (e2) {
-      debugPrint('💥 Second attempt failed: $e2');
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      debugPrint('⛔ Permission permanently denied.');
       await useCairoFallback();
       return;
     }
+
+    try {
+      // نحاول أول مرة بوقت انتظار أطول شوية
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 25),
+      );
+
+      latitude = position.latitude;
+      longitude = position.longitude;
+      isDefaultLocation = false;
+      debugPrint('✅ Got new location: $latitude, $longitude');
+    } catch (e) {
+      debugPrint('⚠️ Failed to get location: $e');
+      debugPrint('🔁 Trying last known position...');
+
+      try {
+        Position? lastPos = await Geolocator.getLastKnownPosition();
+        if (lastPos != null) {
+          latitude = lastPos.latitude;
+          longitude = lastPos.longitude;
+          isDefaultLocation = false;
+          debugPrint('✅ Using last known position: $latitude, $longitude');
+        } else {
+          debugPrint('❌ No last known position found, fallback to Cairo');
+          await useCairoFallback();
+          return;
+        }
+      } catch (e2) {
+        debugPrint('💥 Second attempt failed: $e2');
+        await useCairoFallback();
+        return;
+      }
+    }
+
+    // لو وصلنا هنا يبقى الإحداثيات جاهزة
+    if (latitude != null && longitude != null) {
+      await saveLocation(latitude!, longitude!, isDefaultLocation);
+      await adhan();
+    } else {
+      debugPrint('❌ Coordinates still null, using Cairo fallback');
+      await useCairoFallback();
+    }
+
+    update();
   }
-
-  // لو وصلنا هنا يبقى الإحداثيات جاهزة
-  if (latitude != null && longitude != null) {
-    await saveLocation(latitude!, longitude!, isDefaultLocation);
-    await adhan();
-  } else {
-    debugPrint('❌ Coordinates still null, using Cairo fallback');
-    await useCairoFallback();
-  }
-
-  update();
-}
-
 
   /// 🔹 استخدام القاهرة كخطة احتياطية
   Future<void> useCairoFallback() async {

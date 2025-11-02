@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/azkarRoot" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end|center_vertical">
+
+    <!-- 📜 الكونتينر (على يسار البابلز) -->
+    <FrameLayout android:id="@+id/zikrContainer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bubble_text_bg" android:layout_marginEnd="8dp" android:visibility="gone" android:elevation="10dp">
+
+        <TextView android:id="@+id/azkarText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@android:color/white" android:textSize="15sp" android:padding="10dp" android:maxWidth="240dp" android:gravity="center" />
+    </FrameLayout>
+
+    <!-- 🔵 فقاعة الأيقونة (على اليمين) -->
+    <ImageView android:id="@+id/bubbleIcon" android:layout_width="56dp" android:layout_height="56dp" android:src="@mipmap/ic_launcher" android:background="@drawable/bubble_circle_bg" android:padding="10dp" android:elevation="8dp" />
+</LinearLayout>

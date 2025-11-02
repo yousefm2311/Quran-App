@@ -35,7 +35,7 @@
 //                   child: MaterialButton(
 //                   color: AppColors.kPrimaryColor,
 //                   onPressed: () {
-//                     controller.requestLocationPermission();
+//                     // controller.requestLocationPermission();
 //                   },
 //                   child: Text(
 //                     'Get Data',
@@ -50,6 +50,10 @@
 //     );
 //   }
 // }
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quran_app_android/core/util/color.dart';

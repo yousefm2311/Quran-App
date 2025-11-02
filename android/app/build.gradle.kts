@@ -44,6 +44,8 @@ android {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
+    implementation("com.google.code.gson:gson:2.10.1")
+
 }
 
 flutter {

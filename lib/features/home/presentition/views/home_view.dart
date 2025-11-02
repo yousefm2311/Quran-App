@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names, must_be_immutable
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quran_app_android/core/native/native_azkar_bridge.dart';
 import 'package:quran_app_android/core/service/settings/SettingsServices.dart';
 import 'package:quran_app_android/core/util/color.dart';
 import 'package:quran_app_android/core/util/icon_broken.dart';
@@ -26,6 +27,7 @@ class HomeView extends GetWidget<HomeViewModel> {
     return Scaffold(
       backgroundColor: AppColors.kbackGroundColor,
       appBar: CustomAppBar(
+        
         loading: IconButton(
           onPressed: () async {
             // Get.bottomSheet(BottomsheetBody(

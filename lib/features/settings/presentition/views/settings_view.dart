@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:quran_app_android/core/native/native_azkar_bridge.dart';
 import 'package:quran_app_android/core/util/assets.dart';
 import 'package:quran_app_android/core/util/widgets/custom_appBar.dart';
 import 'package:quran_app_android/core/util/widgets/custom_back_button.dart';
@@ -38,6 +39,10 @@ class SettingsView extends StatelessWidget {
                   SectionAzkarNotification(controller: controller),
                   const SizedBox(height: 20.0),
                   SectionStopNotification(controller: controller),
+            
+            MaterialButton(onPressed: ()async{
+              await NativeAzkarBridge.cancelAzkar();
+            },child: Text('الغاء'),),
                 ],
               );
             }),

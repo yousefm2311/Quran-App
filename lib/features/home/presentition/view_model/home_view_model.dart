@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:quran_app_android/core/native/native_azkar_bridge.dart';
 import 'package:quran_app_android/core/native/permissions_helper.dart';
 import 'package:quran_app_android/core/service/settings/SettingsServices.dart';
 import 'package:quran_app_android/core/util/assets.dart';
@@ -29,7 +30,7 @@ class HomeViewModel extends GetxController {
     await requestBasicPermissions();
     await getLastRead();
     await _setupHomeWidget();
-
+    await NativeAzkarBridge.scheduleDailyAzkar(2);
     // ✅ إظهار نافذة الأذونات لمرة واحدة فقط
     final prefs = await SharedPreferences.getInstance();
     final shown = prefs.getBool('permissions_shown') ?? false;
