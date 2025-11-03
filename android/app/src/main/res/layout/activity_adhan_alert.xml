@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center" android:background="@android:color/black" android:padding="24dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center" android:background="#000000" android:padding="24dp">
 
-    <TextView android:id="@+id/prayerTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🕌 حان الآن وقت الصلاة" android:textColor="@android:color/white" android:textSize="26sp" android:textStyle="bold" android:layout_marginBottom="32dp" />
+    <com.example.quran_app_android.ui.MosqueView android:id="@+id/mosqueView" android:layout_width="160dp" android:layout_height="160dp" android:layout_marginBottom="24dp" />
 
-    <Button android:id="@+id/stopButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="إيقاف الأذان" android:backgroundTint="@android:color/holo_red_light" android:textColor="@android:color/white" android:paddingHorizontal="32dp" android:paddingVertical="14dp" android:layout_marginTop="16dp" />
+    <TextView android:id="@+id/prayerTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🕌 حان الآن وقت الصلاة" android:textColor="#FFFFFF" android:textSize="22sp" android:textStyle="bold" android:layout_marginBottom="16dp" />
+
+    <Button android:id="@+id/stopButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="إيقاف الأذان" android:backgroundTint="#F44336" android:textColor="#FFFFFF" android:paddingHorizontal="32dp" android:paddingVertical="12dp" />
 </LinearLayout>

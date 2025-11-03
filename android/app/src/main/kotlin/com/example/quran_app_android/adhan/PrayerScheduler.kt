@@ -1,130 +1,30 @@
-// package com.example.quran_app_android.adhan
-
-// import android.app.AlarmManager
-// import android.app.PendingIntent
-// import android.content.Context
-// import android.content.Intent
-// import android.util.Log
-
-// object PrayerScheduler {
-
-//     /**
-//      * جدولة كل الصلوات القادمة بناءً على أوقات بيتم إرسالها من فلاتر
-//      * @param context  Context التطبيق
-//      * @param prayerTimes خريطة فيها أوقات الصلوات (millis)
-//      * مثلاً:
-//      * {
-//      *   "fajr": 1730443200000,
-//      *   "dhuhr": 1730486400000,
-//      *   "asr": 1730508000000,
-//      *   "maghrib": 1730529600000,
-//      *   "isha": 1730540400000
-//      * }
-//      */
-//     fun scheduleAll(context: Context, prayerTimes: Map<String, Long> = emptyMap()) {
-//         if (prayerTimes.isEmpty()) {
-//             Log.w("PrayerScheduler", "No prayer times received to schedule.")
-//             return
-//         }
-
-//         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-//         prayerTimes.forEach { (name, millis) ->
-//             val intent = Intent(context, AlarmReceiver::class.java).apply {
-//                 putExtra("prayer_name", name)
-//             }
-
-//             val requestCode = name.hashCode()
-//             val pendingIntent = PendingIntent.getBroadcast(
-//                 context,
-//                 requestCode,
-//                 intent,
-//                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//             )
-
-//             // لو الوقت فات، متجدولش
-//             if (millis <= System.currentTimeMillis()) return@forEach
-
-//             alarmManager.setExactAndAllowWhileIdle(
-//                 AlarmManager.RTC_WAKEUP,
-//                 millis,
-//                 pendingIntent
-//             )
-
-//             Log.i("PrayerScheduler", "⏰ Scheduled $name at ${millis}")
-//         }
-//     }
-
-//     /**
-//      * إلغاء كل الصلوات المجدولة (اختياري)
-//      */
-//     fun cancelAll(context: Context, prayerTimes: Map<String, Long>) {
-//         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//         prayerTimes.keys.forEach { name ->
-//             val intent = Intent(context, AlarmReceiver::class.java)
-//             val pendingIntent = PendingIntent.getBroadcast(
-//                 context,
-//                 name.hashCode(),
-//                 intent,
-//                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//             )
-//             alarmManager.cancel(pendingIntent)
-//         }
-//     }
-// }
-// package com.example.quran_app_android.adhan
-
-// import android.app.AlarmManager
-// import android.app.PendingIntent
-// import android.content.Context
-// import android.content.Intent
-// import android.util.Log
-
-// object PrayerScheduler {
-
-//     fun scheduleAll(context: Context, prayerTimes: Map<String, Long> = emptyMap()) {
-//         Log.i("PrayerScheduler", "Testing: scheduling test adhan after 60 sec")
-
-//         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//         val intent = Intent(context, AlarmReceiver::class.java)
-//         intent.putExtra("prayer_name", "اختبار الأذان")
-
-//         val pendingIntent = PendingIntent.getBroadcast(
-//             context,
-//             9999,
-//             intent,
-//             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//         )
-
-//         val triggerTime = System.currentTimeMillis() + 60 * 1000 // بعد دقيقة واحدة
-//         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
-
-//         Log.i("PrayerScheduler", "✅ تم جدولة اختبار الأذان بعد دقيقة واحدة.")
-//     }
-// }
-
-
 package com.example.quran_app_android.adhan
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.PowerManager
 import android.util.Log
-import android.widget.Toast
+import java.util.Calendar
 
 object PrayerScheduler {
 
     fun scheduleAll(context: Context, prayerTimes: Map<String, Long> = emptyMap()) {
         if (prayerTimes.isEmpty()) {
-            Log.w("PrayerScheduler", "❌ لم تصل مواقيت صلاة من Flutter")
-            Toast.makeText(context, "❌ لم تصل مواقيت صلاة من Flutter", Toast.LENGTH_SHORT).show()
+            Log.w("PrayerScheduler", "⚠️ لم يتم تمرير أي مواقيت صلاة — لا توجد صلوات للجدولة")
             return
         }
 
+        val sdk = Build.VERSION.SDK_INT
+        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val ignoring = try { pm.isIgnoringBatteryOptimizations(context.packageName) } catch (_: Exception) { false }
+        Log.i("PrayerScheduler", "📱 نظام التشغيل SDK=$sdk، تجاهل تحسينات البطارية=$ignoring")
+
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // 🧹 إلغاء أي منبهات قديمة لتجنب التكرار
+        // Cancel any existing alarms for these names
         prayerTimes.keys.forEach { name ->
             val cancelIntent = Intent(context, AlarmReceiver::class.java)
             val cancelPending = PendingIntent.getBroadcast(
@@ -136,10 +36,10 @@ object PrayerScheduler {
             alarmManager.cancel(cancelPending)
         }
 
-        // 🕌 جدولة كل صلاة بدقة
+        // Schedule the future prayers only
         prayerTimes.forEach { (name, millis) ->
             if (millis <= System.currentTimeMillis()) {
-                Log.i("PrayerScheduler", "⏭ تخطينا $name لأنها في الماضي (${millis})")
+                Log.i("PrayerScheduler", "⏭ تم تخطي صلاة $name عند $millis لأنها وقتها فات (<= الآن)")
                 return@forEach
             }
 
@@ -155,21 +55,84 @@ object PrayerScheduler {
             )
 
             try {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    millis,
-                    pendingIntent
-                )
-                Log.i("PrayerScheduler", "✅ تم جدولة $name عند ${millis}")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        millis,
+                        pendingIntent
+                    )
+                } else {
+                    alarmManager.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        millis,
+                        pendingIntent
+                    )
+                }
+                Log.i("PrayerScheduler", "🕌 تم جدولة صلاة $name عند $millis (باستخدام setExact${if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "+AllowWhileIdle" else ""})")
             } catch (e: Exception) {
-                Log.e("PrayerScheduler", "❌ فشل في جدولة $name: ${e.message}")
+                Log.e("PrayerScheduler", "❌ فشل في جدولة صلاة $name: ${e.message}")
             }
         }
+    }
 
-        Toast.makeText(
+    fun scheduleDailyReset(context: Context) {
+        try {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, AdhanResetReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                12345,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val next = Calendar.getInstance().apply {
+                timeInMillis = System.currentTimeMillis()
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 1)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+                // Always schedule for the next 12:01 AM in the future
+                if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_YEAR, 1)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    next.timeInMillis,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    next.timeInMillis,
+                    pendingIntent
+                )
+            }
+
+            Log.i("PrayerScheduler", "🕛 تم جدولة إعادة الأذان اليومية الساعة 12:01 بعد منتصف الليل (millis=${next.timeInMillis})")
+        } catch (e: Exception) {
+            Log.e("PrayerScheduler", "💥 فشل في جدولة إعادة الأذان اليومية: ${e.message}")
+        }
+    }
+
+    // Debug helper: schedule AdhanResetReceiver after N seconds (default 60)
+    fun scheduleTestReset(context: Context, delaySeconds: Int = 60) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, AdhanResetReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
             context,
-            "✅ تم جدولة ${prayerTimes.size} صلاة بنجاح",
-            Toast.LENGTH_SHORT
-        ).show()
+            12346,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val whenMillis = System.currentTimeMillis() + delaySeconds * 1000L
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, whenMillis, pendingIntent)
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, whenMillis, pendingIntent)
+        }
+        Log.i("PrayerScheduler", "🧪 [تصحيح] تم جدولة اختبار إعادة الأذان بعد ${delaySeconds} ثانية (millis=$whenMillis)")
     }
 }
+

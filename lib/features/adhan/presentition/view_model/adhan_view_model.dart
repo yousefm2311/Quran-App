@@ -137,7 +137,10 @@ class AdhanViewModel extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    try {} catch (e) {
+    try {
+      await initializeAdhan();
+      debugPrint('💥 initializeAdhan true: ');
+    } catch (e) {
       debugPrint('💥 initializeAdhan failed: $e');
       await useCairoFallback();
     }

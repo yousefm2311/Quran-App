@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 🔒 الأذونات -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -13,13 +12,26 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <application android:name="${applicationName}" android:label="تقرب" android:icon="@mipmap/ic_launcher" android:allowBackup="true" android:supportsRtl="true" tools:targetApi="33">
+    <application
+        android:name="${applicationName}"
+        android:label="تقرب"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:supportsRtl="true"
+        tools:targetApi="33">
 
-        <!-- 🕌 الشاشة الرئيسية للتطبيق -->
-        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:taskAffinity="" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize" android:showWhenLocked="true" android:turnScreenOn="true">
-
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true">
             <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -28,71 +40,89 @@
 
         <meta-data android:name="flutterEmbedding" android:value="2" />
 
-        <!-- 🕌 شاشة عرض الأذان -->
-        <activity android:name=".adhan.AdhanAlertActivity" android:exported="true" android:theme="@style/Theme.AppCompat.Light.NoActionBar" android:showWhenLocked="true" android:turnScreenOn="true" android:excludeFromRecents="true" android:launchMode="singleInstance" android:taskAffinity="" android:showOnLockScreen="true" android:allowEmbedded="true" android:immersive="true" />
+        <activity
+            android:name=".adhan.AdhanAlertActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
+            android:allowEmbedded="true"
+            android:immersive="true" />
 
-        <!-- 🎵 الخدمة المسؤولة عن تشغيل صوت الأذان -->
-        <service android:name=".adhan.AdhanService" android:exported="false" android:foregroundServiceType="mediaPlayback|location|connectedDevice" />
+        <!-- Foreground service for playing the Adhan -->
+        <service
+            android:name=".adhan.AdhanService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback|location|connectedDevice" />
 
-        <!-- ⏰ الريسيفر اللي بيشغل الأذان عند وقت الصلاة -->
-        <receiver android:name=".adhan.AlarmReceiver" android:enabled="true" android:exported="true" />
+        <!-- Persistent foreground service to keep scheduling alive and listen to time changes -->
+        <service
+            android:name=".adhan.AdhanBackgroundService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback|dataSync" />
 
-        <!-- 🔁 لإعادة جدولة الأذان بعد إعادة التشغيل أو تغيير الوقت -->
-        <receiver android:name=".adhan.BootReceiver" android:enabled="true" android:exported="true">
+        <receiver
+            android:name=".adhan.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
 
+        <receiver
+            android:name=".adhan.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-
-            <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-
-            <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-            </intent-filter>
-
-            <intent-filter>
                 <action android:name="android.intent.action.TIME_CHANGED" />
-            </intent-filter>
-
-            <intent-filter>
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
+        </receiver>
 
+        <receiver
+            android:name=".adhan.AdhanResetReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
+                <action android:name="android.intent.action.DATE_CHANGED" />
                 <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
 
-        <!-- 🏠 الويدجت -->
-        <receiver android:name=".MyHomeWidget" android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider" android:resource="@xml/my_home_widget_info" />
-        </receiver>
+        <!-- Existing widget and azkar components -->
+<receiver android:name=".MyHomeWidget" android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
 
-        <!-- 🎧 خدمة الأذكار (الفقاعات) -->
-        <service android:name=".azkar.AzkarBubbleService" android:exported="false" android:foregroundServiceType="mediaPlayback|dataSync" />
+    <meta-data android:name="android.appwidget.provider" android:resource="@xml/my_home_widget_info" />
+</receiver>
 
-        <!-- ✅ الريسيفر اللي بيعرض الأذكار -->
-        <receiver android:name=".azkar.AzkarReceiver" android:enabled="true" android:exported="true">
 
+        <service
+            android:name=".azkar.AzkarBubbleService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback|dataSync" />
+
+        <receiver
+            android:name=".azkar.AzkarReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-
-            <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-
-            <intent-filter>
                 <action android:name="com.example.quran_app_android.AZKAR_ACTION" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".azkar.BootReceiver" android:enabled="true" android:exported="true">
+        <receiver
+            android:name=".azkar.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
@@ -102,16 +132,13 @@
             </intent-filter>
         </receiver>
 
-
     </application>
 
-    <!-- ⚙️ موارد إضافية مطلوبة -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />
             <data android:mimeType="text/plain" />
         </intent>
-
         <intent>
             <action android:name="android.settings.action.MANAGE_OVERLAY_PERMISSION" />
         </intent>

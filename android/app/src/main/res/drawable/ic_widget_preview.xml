@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="180dp" android:height="180dp" android:viewportWidth="180" android:viewportHeight="180">
+
+    <!-- خلفية دائرية خفيفة -->
+    <path android:fillColor="#FFF" android:pathData="M0,0h180v180h-180z" />
+
+    <!-- إطار الويدجت -->
+    <path android:fillColor="#4CAF50" android:pathData="M16,16h148a8,8 0 0 1 8,8v132a8,8 0 0 1 -8,8h-148a8,8 0 0 1 -8,-8v-132a8,8 0 0 1 8,-8z" />
+
+    <!-- خط الزكر الأبيض -->
+    <path android:fillColor="#FFFFFF" android:pathData="M35,95h110a5,5 0 0 1 5,5v10a5,5 0 0 1 -5,5h-110a5,5 0 0 1 -5,-5v-10a5,5 0 0 1 5,-5z" />
+
+    <!-- شريط علوي يرمز للعنوان -->
+    <path android:fillColor="#2E7D32" android:pathData="M45,60h90a4,4 0 0 1 4,4v8a4,4 0 0 1 -4,4h-90a4,4 0 0 1 -4,-4v-8a4,4 0 0 1 4,-4z" />
+
+    <!-- رمز مسجد بسيط -->
+    <path android:fillColor="#81C784" android:pathData="M90,120l10,20h-20zM70,120v20h40v-20zM88,105a8,8 0 1,1 16,0z" />
+</vector>
