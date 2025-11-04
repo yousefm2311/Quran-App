@@ -94,8 +94,8 @@ class HomeViewModel extends GetxController {
       await HomeWidget.saveWidgetData('deepLink', 'quranapp://azkar');
       await Future.delayed(const Duration(seconds: 1));
       await HomeWidget.updateWidget(
-        iOSName: iOSWidgetName,
-        androidName: androidWidgetName,
+        iOSName: 'MyHomeWidget',
+        androidName: 'com.example.quran_app_android.MyHomeWidget',
       );
       debugPrint('✅ Widget updated successfully');
     } catch (e, st) {

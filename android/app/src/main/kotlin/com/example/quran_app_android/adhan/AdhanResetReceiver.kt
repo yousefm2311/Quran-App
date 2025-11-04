@@ -15,13 +15,18 @@ class AdhanResetReceiver : BroadcastReceiver() {
             if (!jsonString.isNullOrEmpty()) {
                 val json = JSONObject(jsonString)
                 val map = mutableMapOf<String, Long>()
-                json.keys().forEach { key -> map[key] = json.getLong(key) }
+                json.keys().forEach { key ->
+                    val oldTime = json.getLong(key)
+                    // ✅ لو الوقت فات من اليوم السابق، زوده 24 ساعة بالضبط (86400000 ملي ثانية)
+                    val adjustedTime = if (oldTime <= System.currentTimeMillis())
+                        oldTime + 86_400_000L else oldTime
+                    map[key] = adjustedTime
+                }
                 PrayerScheduler.scheduleAll(context, map)
-                Log.i("AdhanReset", "✅ تمت إعادة جدولة ${map.size} صلاة من الأوقات المحفوظة")
+                Log.i("AdhanReset", "✅ تمت إعادة جدولة ${map.size} صلاة بعد تعديل اليوم الجديد")
             } else {
                 Log.w("AdhanReset", "⚠️ لم يتم العثور على مواقيت صلاة محفوظة — تم تخطي الجدولة")
             }
-
             PrayerScheduler.scheduleDailyReset(context)
             Log.i("AdhanReset", "🕛 تم جدولة إعادة الأذان اليومية القادمة الساعة 12:01 بعد منتصف الليل")
         } catch (e: Exception) {
@@ -29,4 +34,5 @@ class AdhanResetReceiver : BroadcastReceiver() {
         }
     }
 }
+
 
