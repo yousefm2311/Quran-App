@@ -34,7 +34,7 @@ class MainActivity : FlutterActivity() {
             val channel = NotificationChannel(
                 channelId,
                 "Adhan Background Service",
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = "Channel to keep Adhan background service running"
                 setShowBadge(false)
