@@ -9,7 +9,7 @@
   </p>
 
   <p>
-    <a href="README_AR.md">🇸🇦 عرض باللغة العربية</a>
+    <a href="README_AR.md">AR عرض باللغة العربية</a>
   </p>
 </div>
 
